@@ -92,11 +92,8 @@
 //    return hPrev; 
 //} 
 //
-//// Extracts heading text and heading levels from a global 
-//// array and passes them to a function that adds them as
-//// parent and child items to a tree-view control. 
-//// Returns TRUE if successful, or FALSE otherwise. 
-//// hwndTV - handle to the tree-view control. 
+//// Extracts heading text and heading levels from a global array and passes them to a function that adds them as parent and child items to a tree-view control. 
+//// Returns TRUE if successful, or FALSE otherwise. hwndTV - handle to the tree-view control. 
 //
 //BOOL InitTreeViewItems(HWND hwndTV)
 //{ 
