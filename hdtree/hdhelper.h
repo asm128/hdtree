@@ -26,7 +26,9 @@ namespace hd
 		return false;
 	}
 
-	static inline bool			isValidName		(const std::string & name) { return name.size() && false == containsDigits(name); }
+	static inline bool			isValidName		(const std::string & name) { 
+		return name.size() && false == containsDigits(name); 
+	}
 } // namespace
 
 #endif // HDHELPER_H

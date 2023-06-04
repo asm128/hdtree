@@ -164,9 +164,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="hdtreeapp.cpp" />
+    <ClCompile Include="hdtreetest.cpp" />
     <ClCompile Include="hdtreeview.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hdtreeapp.h" />
     <ClInclude Include="hdtreeview.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
