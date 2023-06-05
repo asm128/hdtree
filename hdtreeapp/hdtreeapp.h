@@ -1,4 +1,5 @@
 #include "hdtree.h"
+#include "hdn2.h"
 
 #ifdef _WIN32
 #	include <Windows.h>
@@ -10,12 +11,6 @@
 
 namespace hd
 {
-	template<typename T>
-	struct n2 { T x, y; };
-
-	typedef n2<uint32_t> n2u32;
-	typedef n2<long>	 n2lng;
-
 	static constexpr n2u32 SIZE_ICON	= {16, 16};
 	static constexpr n2u32 SIZE_BUTTON	= {96, 24};
 	static constexpr n2lng SIZE_MARGIN	= {2, 2};

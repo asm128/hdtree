@@ -157,6 +157,7 @@
     <ClInclude Include="hdhelper.h" />
     <ClInclude Include="hdtree.h" />
     <ClInclude Include="hdlog.h" />
+    <ClInclude Include="hdn2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

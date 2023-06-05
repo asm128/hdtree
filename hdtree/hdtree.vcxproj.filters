@@ -29,5 +29,8 @@
     <ClInclude Include="hdlog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hdn2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

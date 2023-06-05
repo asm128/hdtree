@@ -1,6 +1,5 @@
 #include <vector>
 #include <string>
-#include <algorithm>
 
 #ifndef HDHELPER_H
 #define HDHELPER_H
