@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{91B881C1-2983-4DBD-B1ED-FD0BD594B37A}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="hdtreeapp.cbproj">
+            <Dependencies>..\hdtree\hdtree.cbproj</Dependencies>
+        </Projects>
+        <Projects Include="..\hdtree\hdtree.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="hdtreeapp" DependsOnTargets="hdtree">
+        <MSBuild Projects="hdtreeapp.cbproj"/>
+    </Target>
+    <Target Name="hdtreeapp:Clean" DependsOnTargets="hdtree:Clean">
+        <MSBuild Projects="hdtreeapp.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hdtreeapp:Make" DependsOnTargets="hdtree:Make">
+        <MSBuild Projects="hdtreeapp.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="hdtree">
+        <MSBuild Projects="..\hdtree\hdtree.cbproj"/>
+    </Target>
+    <Target Name="hdtree:Clean">
+        <MSBuild Projects="..\hdtree\hdtree.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hdtree:Make">
+        <MSBuild Projects="..\hdtree\hdtree.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="hdtreeapp;hdtree"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="hdtreeapp:Clean;hdtree:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="hdtreeapp:Make;hdtree:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

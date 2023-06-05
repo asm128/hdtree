@@ -1,6 +1,8 @@
 #include "hdhelper.h"
 #include "hdlog.h"
 
+#include <algorithm>
+
 #ifndef HDTREE_H
 #define HDTREE_H
 
