@@ -3,6 +3,7 @@
 #include "hdlog.h"
 
 #include <algorithm>
+
 // The current implementation does a linear search. 
 // While it could be implemented for doing a binary search, it is possible that 
 // the cache misses it would trigger end up degrading performance instead

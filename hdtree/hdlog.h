@@ -10,7 +10,11 @@
 #	define WIN32_LEAN_AND_MEAN
 #	define NOMINMAX
 #	include <Windows.h>
+#if defined(__BCPLUSPLUS__)
+#	define platform_log(text) do { fprintf(stderr, "%s\n", #text); } while(0)
+#else
 #	define platform_log(text) do { OutputDebugString(TEXT(":" __FILE__ "(" TOSTRING(__LINE__) "){" __FUNCTION__ "}:" TEXT(text "\n"))); fprintf(stderr, "%s\n", #text); } while(0)
+#endif
 #else
 #	define platform_log(text)
 #endif
