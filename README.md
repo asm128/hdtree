@@ -4,7 +4,7 @@ This repository provides fully-working project files for building the code with 
 
 Instructions:
 - Install [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/) with the C++ packages and/or [RAD Studio 11](https://www.embarcadero.com/products/cbuilder).
-- Open [hdtree.sln](./hdtree.sln) and/or [hdtreeapp/hdtreeappGroup.groupproj](./hdtreeapp/hdtreeappGroup.groupproj), respectively.
+- Open [hdtree.sln](./hdtree.sln) and/or [hdtreeappGroup.groupproj](./hdtreeappGroup.groupproj), respectively.
 - Build everythig and run.
 - You still need to copy the .bmp files manually to the folder where the .exe is located, except when running the program from Visual Studio.
 
