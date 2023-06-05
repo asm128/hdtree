@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{91B881C1-2983-4DBD-B1ED-FD0BD594B37A}</ProjectGuid>
+        <ProjectGuid>{A488EA87-F8F0-4C04-9FF4-482CA3ACE8B0}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
         <Projects Include="hdtreeapp.cbproj">
