@@ -4,13 +4,13 @@ Platform		:= Windows.Embarcadero.x64
 ProjectName		:= hdtreeapp
 Configuration	:= Release
 
-C_DEFS			:= -DNOMINMAX
+CXX_DEFS			:= -DNOMINMAX
 OPT				:= 3
 
 ifeq ($(DEBUG), 1)
 	Configuration	= Debug
 	OPT				= 0
-	C_DEFS			+= -DDEBUG
+	CXX_DEFS			+= -DDEBUG
 endif
 
 OutDir :=../../$(Platform).$(Configuration)
@@ -21,17 +21,17 @@ LIBS	:= $(patsubst %, $(OutDir)/%, $(Libs))
 GCCLIBS := $(patsubst %, -l%, $(GccLibs))
 INCDIR	:= $(patsubst %, -I%, $(IncDir))
 
-CFLAGS	:= -o $(OutDir)/$(ProjectName).bin -std=c++17 -Wall -Werror -O$(OPT) $(C_DEFS) $(INCDIR) -L$(OutDir)
-CC		:= g++
+CXXFLAGS	:= -o $(OutDir)/$(ProjectName).bin -std=c++17 -Wall -Werror -O$(OPT) $(CXX_DEFS) $(INCDIR) -L$(OutDir)
+CXX			:= g++
 
 _OBJ	= $(patsubst %.cpp,%.o,$(wildcard *.cpp)) 
 OBJ		= $(patsubst %,$(IntDir)/%,$(_OBJ))
 
 $(IntDir)/%.o: %.cpp
-	$(CC) $(CFLAGS) -c -o $@ $< 
+	$(CXX) $(CXXFLAGS) -c -o $@ $< 
 
 build: $(OBJDIRS) $(OBJ)
-	$(CC) $(OBJ) $(CFLAGS) $(C_DEFS) $(GCCLIBS) $(LIBS)
+	$(CXX) $(OBJ) $(CXXFLAGS) $(CXX_DEFS) $(GCCLIBS) $(LIBS)
 
 $(OBJDIRS):
 	mkdir -p $@ 
