@@ -8,6 +8,7 @@ using namespace hd;
 static int32_t hideInput(WinGDI & gdi, bool clear = false) {
 	if(clear) 
 		SetWindowText(gdi.hInput, TEXT(""));
+
 	ShowWindow(gdi.hInput, SW_HIDE);
 	ShowWindow(gdi.hAddCategory, SW_SHOW);
 	ShowWindow(gdi.hAddMaterial, SW_SHOW);
