@@ -19,14 +19,33 @@ namespace hd
 
 	// Holds 
 	struct TVImages {
-	    int			Material		= 0;
-	    int			CategoryEmpty	= 0;
-	    int			CategoryOpen	= 0;
-	    int			CategoryClosed	= 0;
+		int32_t	Material		= 0;
+		int32_t	CategoryEmpty	= 0;
+		int32_t	CategoryOpen	= 0;
+		int32_t	CategoryClosed	= 0;
 	};
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	
+	enum class INPUT_FIELD : uint8_t {
+		Material,
+		Category
+	};
+
+	struct WinGDI {
+		HINSTANCE		hInstance		= {};
+		HWND			hRoot			= {};
+		HWND			hTree			= {};
+		HWND			hAddCategory	= {};
+		HWND			hAddMaterial	= {};
+		HWND			hClear			= {};
+		HWND			hInput			= {};
+
+		TVImages		Images			= {};
+
+		WNDCLASSEX		WndClass		= {};
+	};
+
 	static void defaultWndClass(WNDCLASSEX & wndClass, HINSTANCE hInstance) {
 		wndClass				= {sizeof(WNDCLASSEX)};
 
@@ -41,27 +60,20 @@ namespace hd
 
 	// 
 	struct App {
-		HINSTANCE		hInstance		= {};
-		HWND			hRoot			= {};
-		HWND			hTree			= {};
-		HWND			hAddCategory	= {};
-		HWND			hAddMaterial	= {};
-		HWND			hClear			= {};
-		HWND			hInput			= {};
-
-		TVImages		Images			= {};
+		WinGDI			GDI;
 
 		MaterialTree	Tree;
-		
-		WNDCLASSEX		WndClass		= {};
+
+		INPUT_FIELD		ActiveInput		= {};
 #ifdef UNICODE
 		std::wstring	NewName			= {};
 #else
 		std::string		NewName			= {};
 #endif
-		App	(HINSTANCE _hInstance) 
-			: hInstance(_hInstance) { 
-			defaultWndClass(WndClass, hInstance); 
+
+		App	(HINSTANCE hInstance) 
+			: GDI{hInstance} { 
+			defaultWndClass(GDI.WndClass, GDI.hInstance); 
 		}
 	};
 } // namespace
