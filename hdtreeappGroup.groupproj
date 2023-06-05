@@ -3,10 +3,10 @@
         <ProjectGuid>{A488EA87-F8F0-4C04-9FF4-482CA3ACE8B0}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="hdtreeapp.cbproj">
-            <Dependencies>..\hdtree\hdtree.cbproj</Dependencies>
+        <Projects Include=".\hdtreeapp\hdtreeapp.cbproj">
+            <Dependencies>.\hdtree\hdtree.cbproj</Dependencies>
         </Projects>
-        <Projects Include="..\hdtree\hdtree.cbproj">
+        <Projects Include=".\hdtree\hdtree.cbproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -18,22 +18,22 @@
         </BorlandProject>
     </ProjectExtensions>
     <Target Name="hdtreeapp" DependsOnTargets="hdtree">
-        <MSBuild Projects="hdtreeapp.cbproj"/>
+        <MSBuild Projects=".\hdtreeapp\hdtreeapp.cbproj"/>
     </Target>
     <Target Name="hdtreeapp:Clean" DependsOnTargets="hdtree:Clean">
-        <MSBuild Projects="hdtreeapp.cbproj" Targets="Clean"/>
+        <MSBuild Projects=".\hdtreeapp\hdtreeapp.cbproj" Targets="Clean"/>
     </Target>
     <Target Name="hdtreeapp:Make" DependsOnTargets="hdtree:Make">
-        <MSBuild Projects="hdtreeapp.cbproj" Targets="Make"/>
+        <MSBuild Projects=".\hdtreeapp\hdtreeapp.cbproj" Targets="Make"/>
     </Target>
     <Target Name="hdtree">
-        <MSBuild Projects="..\hdtree\hdtree.cbproj"/>
+        <MSBuild Projects=".\hdtree\hdtree.cbproj"/>
     </Target>
     <Target Name="hdtree:Clean">
-        <MSBuild Projects="..\hdtree\hdtree.cbproj" Targets="Clean"/>
+        <MSBuild Projects=".\hdtree\hdtree.cbproj" Targets="Clean"/>
     </Target>
     <Target Name="hdtree:Make">
-        <MSBuild Projects="..\hdtree\hdtree.cbproj" Targets="Make"/>
+        <MSBuild Projects=".\hdtree\hdtree.cbproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
         <CallTarget Targets="hdtreeapp;hdtree"/>

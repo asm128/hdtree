@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject>
-	<Transactions>
-    <Transaction>2023-06-05 10:41:00.000.137,D:\hdtree\ProjectGroup1.groupproj=D:\hdtree\hdtreeapp\hdtreeappGroup.groupproj</Transaction>
-  </Transactions>
-	<Default.Personality>
-		<Projects ActiveProject="D:\hdtree\hdtreeapp\hdtreeapp.cbproj"/>
-	</Default.Personality>
-</BorlandProject>
