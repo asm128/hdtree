@@ -190,7 +190,7 @@ static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 #else
 			std::string & newName = tName;
 #endif
-			std::string categoryName = app.Tree.Categories.size() ? app.Tree.Categories[0].Name : std::string{};	// #TODO: grab this from the GDI or from a member in App.
+			std::string categoryName = app.Tree.Categories.size() ? app.Tree.Categories[app.Tree.Categories.size() - 1].Name : std::string{};	// #TODO: grab this from the GDI or from a member in App.
 
 			log_if_failed((app.ActiveInput == INPUT_FIELD::Category) ? app.Tree.AddCategory(newName) : app.Tree.AddMaterial(categoryName, newName));
 			log_if_failed(::hideInput(app.GDI));
