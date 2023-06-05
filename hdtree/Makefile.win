@@ -2,13 +2,13 @@ Platform		:= Windows.Embarcadero.x64
 ProjectName		:= hdtree
 Configuration	:= Release
 
-CXX_DEFS			:= -DNOMINMAX
+CXX_DEFS		:= -DNOMINMAX
 OPT				:= 3
 
 ifeq ($(DEBUG), 1)
 	Configuration	= Debug
 	OPT				= 0
-	CXX_DEFS			+= -DDEBUG
+	CXX_DEFS		+= -DDEBUG
 endif
 
 OutDir	= ../../$(Platform).$(Configuration)

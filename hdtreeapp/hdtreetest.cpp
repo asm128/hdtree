@@ -1,7 +1,5 @@
 #include "hdtree.h"
 
-#define print_text_test_result(call, text) printf("\n%i <- %s with %s", call, #call, text);
-
 // Linking to the console subsystem executes a test on the tree object instead of calling WinMain() and launching the window
 int main () {
 	hd::MaterialTree		tree;
@@ -9,31 +7,6 @@ int main () {
 	constexpr const char*	testStrings[] = 
 		{ "1"
 		, "c"
-		, "win.ini"
-		, "WindowsUpdate.log"
-		, "winhlp32.exe"
-		, "mib.bin"
-		, "Microsoft.NET"
-		, "PLA"
-		, "aa"
-		, "bb"
-		, "cc"
-		, "ac"
-		, "bbc"
-		, "zab"
-		, "aabz"
-		, "cabasd"
-		, "j"
-		, "b"
-		, "x"
-		, "b"
-		, "iii"
-		, "i"
-		, "addins"
-		, "appcompat"
-		, "BCW5.INI"
-		, "bfsvc.exe"
-		, "Boot"
 		, "Branding"
 		, "apppatch"
 		, "AppReadiness"
@@ -83,75 +56,6 @@ int main () {
 		, "LAN.log"
 		, "LiveKernelReports"
 		, "en-US"
-		, "Logs"
-		, "Migration"
-		, "PrintDialog"
-		, "Professional.xml"
-		, "ca"
-		, "progress.ini"
-		, "ODBCINST.INI"
-		, "Offline Web Pages"
-		, "explorer.exe"
-		, "splwow64.exe"
-		, "Performance"
-		, "System32"
-		, "Minidump"
-		, "Panther"
-		, "MASetupCaller.dll"
-		, "GearBox.ini"
-		, "Provisioning"
-		, "py.exe"
-		, "SchCache"
-		, "pyshellext.amd64.dll"
-		, "pyw.exe"
-		, "PFRO.log"
-		, "regedit.exe"
-		, "System"
-		, "Resources"
-		, "RtlExUpd.dll"
-		, "HelpPane.exe"
-		, "schemas"
-		, "security"
-		, "MAMCityDownload.ocx"
-		, "Speech"
-		, "Speech_OneCore"
-		, "ModemLogs"
-		, "msdfmap.ini"
-		, "SystemResources"
-		, "MusiccityDownload.exe"
-		, "twain_32.dll"
-		, "UpdateAssistant"
-		, "ServiceProfiles"
-		, "Vss"
-		, "WaaS"
-		, "Web"
-		, "PolicyDefinitions"
-		, "WLXPGSS.SCR"
-		, "SysWOW64"
-		, "Prefetch"
-		, "ServiceState"
-		, "servicing"
-		, "SystemApps"
-		, "Temp"
-		, "TextInput"
-		, "tracing"
-		, "setuperr.log"
-		, "twain_32"
-		, "setupact.log"
-		, "ShellExperiences"
-		, "SystemTemp"
-		, "notepad.exe"
-		, "Setup"
-		, "TAPI"
-		, "Tasks"
-		, "ShellNew"
-		, "TSSysprep.log"
-		, "hh.exe"
-		, "IdentityCRL"
-		, "WinSxS"
-		, "IE11_main.log"
-		, "ShellComponents"
-		, "Registration"
 		, "IME"
 		, "RemotePackages"
 		, "ImmersiveControlPanel"
@@ -161,19 +65,33 @@ int main () {
 		, "write.exe"
 		};
 
-	for(const char* textToTest : testStrings)
-		print_text_test_result(tree.AddCategory(textToTest), textToTest);
+#define print_text_test_result(index, call, text) printf("\n%i -> %i | %s with %s", index, (call), #call, text);
 
-	for(const char* textToTest : testStrings)
-		print_text_test_result(tree.Categories[0].AddMaterial(textToTest), textToTest);
+	printf("\n\n--- Adding categories:\n");
+	for(uint32_t iString = 0; iString < std::size(testStrings); ++iString) {
+		std::string categoryName = testStrings[iString];
+		print_text_test_result(iString, tree.AddCategory(categoryName), categoryName.c_str());
+	}
 
-	printf("\n\nCategory results:\n");
+	printf("\n\n--- Adding materials:\n");
+	for(uint32_t iCategory = 0; iCategory < tree.Categories.size(); ++iCategory) {
+		const std::string & categoryName = tree.Categories[tree.Categories.size() - 1 - iCategory].Name;
+		for(uint32_t iString = 0; iString < std::size(testStrings); ++iString) {
+			std::string materialName = testStrings[std::size(testStrings) - 1 - iString];
+			print_text_test_result(iString, tree.AddMaterial(categoryName, materialName), materialName.c_str());
+		}
+	}
+
+	printf("\n\n--- Category results:\n");
 	for(auto cat : tree.Categories)
 		printf("\n%s", cat.Name.c_str());
 
-	printf("\n\nMaterial results:\n");
-	for(auto mat : tree.Categories[0].Materials)
-		printf("\n%s", mat.c_str());
+	printf("\n\n--- Material results:\n");
+	for(auto cat : tree.Categories) {
+		printf("\n - Category: %s", cat.Name.c_str());
+		for(auto mat : cat.Materials)
+			printf("\n%s", mat.c_str());
+	}
 
 	return EXIT_SUCCESS;
 }

@@ -27,8 +27,7 @@ namespace hd
                 return category.Name == categoryName; 
             });
             fail_if(itCat == Categories.end());
-            fail_if_failed(itCat->AddMaterial(materialName));
-            return 0;
+            return itCat->AddMaterial(materialName);
         }
 
         // This is just a more compact version of addUniqueStringWithoutDigitsOrdered(). 
