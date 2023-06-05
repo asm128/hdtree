@@ -296,20 +296,33 @@ LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_NOTIFY: {
-		const NMHDR	* nmhdr		= (NMHDR*)lParam;
+		const NMTREEVIEW* nmhdr		= (NMTREEVIEW*)lParam;
 		const int	controlId	= (int)wParam;
-		if(nmhdr->code == TVN_SELCHANGED && controlId == GetDlgCtrlID(app->GDI.hTree)) {
-			TCHAR		buffer[256] = {};
-			HTREEITEM	hItem = TreeView_GetSelection(app->GDI.hTree);
-			if(0 == TreeView_GetParent(app->GDI.hTree, hItem)) {
-				TVITEM		tvItem = {};
-				tvItem.hItem		= hItem;
-				tvItem.mask			= TVIF_TEXT;
-				tvItem.cchTextMax	= sizeof(buffer);
-				tvItem.pszText		= buffer;
-				TreeView_GetItem(app->GDI.hTree, &tvItem);
-				if(tvItem.pszText)
-					app->SelectedCategory = {tvItem.pszText};
+		if(controlId == GetDlgCtrlID(app->GDI.hTree)) {
+			HTREEITEM	hItem	= TreeView_GetSelection(app->GDI.hTree);
+			TVITEM		tvItem	= {}; 
+			switch(nmhdr->hdr.code) {
+			case TVN_ITEMEXPANDED: {
+				tvItem.mask				= TVIF_IMAGE | TVIF_SELECTEDIMAGE; 
+				tvItem.hItem			= hItem;
+				tvItem.iImage			= (TVE_COLLAPSE == nmhdr->action) ? app->GDI.Images.CategoryClosed : app->GDI.Images.CategoryOpen; 
+				tvItem.iSelectedImage	= (TVE_COLLAPSE == nmhdr->action) ? app->GDI.Images.CategoryClosed : app->GDI.Images.CategoryOpen; 
+				TreeView_SetItem(app->GDI.hTree, &tvItem); 
+				break;
+			}
+			case TVN_SELCHANGED: {
+				TCHAR		buffer[256] = {};
+				if(0 == TreeView_GetParent(app->GDI.hTree, hItem)) {
+					tvItem.hItem		= hItem;
+					tvItem.mask			= TVIF_TEXT;
+					tvItem.cchTextMax	= sizeof(buffer);
+					tvItem.pszText		= buffer;
+					TreeView_GetItem(app->GDI.hTree, &tvItem);
+					if(tvItem.pszText)
+						app->SelectedCategory = {tvItem.pszText};
+				}
+				break;
+			}
 			}
 		}
 		break;
