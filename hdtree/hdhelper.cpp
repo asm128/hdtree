@@ -1,13 +1,11 @@
 #include "hdhelper.h"
 
-#include "hdlog.h"
-
 #include <algorithm>
 
 // The current implementation does a linear search. 
 // While it could be implemented for doing a binary search, it is possible that 
 // the cache misses it would trigger end up degrading performance instead
-static int32_t addUniqueStringOrdered (std::vector<std::string> & container, const std::string & stringToAdd) { 
+int32_t hd::addUniqueStringOrdered (std::vector<std::string> & container, const std::string & stringToAdd) { 
     for(std::vector<std::string>::iterator itCat = container.begin(); itCat != container.end(); ++itCat) {
         const std::string   & name      = *itCat;
         const int           index       = int(itCat - container.begin());
@@ -35,10 +33,4 @@ static int32_t addUniqueStringOrdered (std::vector<std::string> & container, con
     }
     container.push_back({stringToAdd});
     return int(container.size() - 1);
-}
-
-int32_t hd::addUniqueStringWithoutDigitsOrdered (std::vector<std::string> & container, const std::string & stringToAdd) { 
-    fail_if((0 == stringToAdd.size()) || containsDigits(stringToAdd));
-
-    return addUniqueStringOrdered(container, stringToAdd);
 }

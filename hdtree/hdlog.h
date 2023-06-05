@@ -1,5 +1,3 @@
-#include "hdhelper.h"
-
 #ifndef HDLOG_H_2365
 #define HDLOG_H_2365
 

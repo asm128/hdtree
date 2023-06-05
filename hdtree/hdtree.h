@@ -20,7 +20,7 @@ namespace hd
     struct MaterialTree {
         std::vector<Category>   Categories;
 
-        inline int32_t          AddMaterial (int32_t categoryIndex, const std::string & materialName) { 
+        inline int32_t          AddMaterial (uint32_t categoryIndex, const std::string & materialName) {
             return Categories[categoryIndex].AddMaterial(materialName); 
         }
 
