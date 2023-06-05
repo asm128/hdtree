@@ -1,4 +1,5 @@
 #include "hdtree.h"
+#include <Windows.h>
 
 // Linking to the console subsystem executes a test on the tree object instead of calling WinMain() and launching the window
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/);
