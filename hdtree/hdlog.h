@@ -6,11 +6,11 @@
 #define	STRINGIFY(x) #x
 #define	TOSTRING(x)  STRINGIFY(x)
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_DEBUG)
 #	define WIN32_LEAN_AND_MEAN
 #	define NOMINMAX
 #	include <Windows.h>
-#	define platform_log(text) OutputDebugString(TEXT(":" __FILE__ "(" TOSTRING(__LINE__) "){" __FUNCTION__ "}:" TEXT(text "\n")))	
+#	define platform_log(text) do { OutputDebugString(TEXT(":" __FILE__ "(" TOSTRING(__LINE__) "){" __FUNCTION__ "}:" TEXT(text "\n"))); fprintf(stderr, "%s\n", #text); } while(0)
 #else
 #	define platform_log(text)
 #endif
@@ -18,13 +18,11 @@
 #define log_if(condition)							\
 	if(condition) do {								\
 		platform_log(#condition);					\
-		fprintf(stderr, "%s\n", #condition);		\
 	} while(0)
 
 #define fail_with_val_if(val, condition)			\
 	if(condition) do {								\
 		platform_log(#condition);					\
-		fprintf(stderr, "%s\n", #condition);		\
 		return (val);								\
 	} while(0)
 

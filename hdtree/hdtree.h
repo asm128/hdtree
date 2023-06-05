@@ -1,4 +1,5 @@
 #include "hdhelper.h"
+#include "hdlog.h"
 
 #ifndef HDTREE_H
 #define HDTREE_H
@@ -23,20 +24,20 @@ namespace hd
 
         int32_t                 AddMaterial (const std::string & categoryName, const std::string & materialName) { 
             std::vector<Category>::iterator itCat = std::find_if(Categories.begin(), Categories.end(), [categoryName](const Category & category) { return category.Name == categoryName; });
-            return (itCat == Categories.end()) ? -1 : itCat->AddMaterial(materialName);
+            fail_if(itCat == Categories.end());
+            fail_if_failed(itCat->AddMaterial(materialName));
+            return 0;
         }
 
         // This is just a more compact version of addUniqueStringWithoutDigitsOrdered(). 
         int32_t                 AddCategory (const std::string & categoryName) { 
-            if(0 == categoryName.size() || containsDigits(categoryName))
-                return -1;
+            fail_if(0 == categoryName.size() || containsDigits(categoryName));
 
             for(std::vector<Category>::iterator itCat = Categories.begin(); itCat != Categories.end(); ++itCat) {
                 const std::string   & name          = itCat->Name;
                 const bool          equalSize       = categoryName.size() == name.size();
                 const int           signOrEqual     = memcmp(name.data(), categoryName.data(), std::min(name.size(), categoryName.size()));
-                if(equalSize && signOrEqual == 0) // same size and contents, failure
-                    return -1;
+                fail_if(equalSize && signOrEqual == 0); // same size and contents, failure
 
                 if(signOrEqual > 0 || (signOrEqual == 0 && name.size() > categoryName.size())) {
                     int index = int(itCat - Categories.begin());

@@ -17,8 +17,7 @@ static int32_t addUniqueStringOrdered (std::vector<std::string> & container, con
         }
 
         if(equalSize) {
-            if(name.size() == 0 || signOrEqual == 0) // same size and contents, failure
-                return -1;
+            fail_if(name.size() == 0 || signOrEqual == 0); // same size and contents, failure
             else // if not equal, categoryName is greater than name, so test next or add at the end.
                 continue;
         }
