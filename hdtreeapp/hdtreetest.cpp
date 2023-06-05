@@ -77,20 +77,20 @@ int main () {
 	for(uint32_t iCategory = 0; iCategory < tree.Categories.size(); ++iCategory) {
 		const std::string & categoryName = tree.Categories[tree.Categories.size() - 1 - iCategory].Name;
 		for(uint32_t iString = 0; iString < std::size(testStrings); ++iString) {
-			std::string materialName = testStrings[std::size(testStrings) - 1 - iString];
+			std::string materialName = (iCategory & 1) ? testStrings[std::size(testStrings) - 1 - iString] : testStrings[iString];
 			print_text_test_result(iString, tree.AddMaterial(categoryName, materialName), materialName.c_str());
 		}
 	}
 
 	printf("\n\n--- Category results:\n");
 	for(auto cat : tree.Categories)
-		printf("\n%s", cat.Name.c_str());
+		printf("\n- %s", cat.Name.c_str());
 
 	printf("\n\n--- Material results:\n");
 	for(auto cat : tree.Categories) {
 		printf("\n - Category: %s", cat.Name.c_str());
 		for(auto mat : cat.Materials)
-			printf("\n%s", mat.c_str());
+			printf("\n\t- %s", mat.c_str());
 	}
 
 	return EXIT_SUCCESS;
