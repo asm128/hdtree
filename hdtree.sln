@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hdtreeapp", "hdtreeapp\hdtreeapp.vcxproj", "{3AD3E3F2-A4EC-49C5-B790-930209DBD9DD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3F7E0F03-6388-4624-9DA5-523122C1F6FE} = {3F7E0F03-6388-4624-9DA5-523122C1F6FE}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hdtree", "hdtree\hdtree.vcxproj", "{3F7E0F03-6388-4624-9DA5-523122C1F6FE}"
 EndProject
