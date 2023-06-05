@@ -211,6 +211,7 @@ static HTREEITEM addTreeItem(App & app, const std::string & itemText, HTREEITEM 
 } 
 
 static int32_t refreshTree(App & app) {
+	TreeView_DeleteAllItems(app.GDI.hTree);
 	for(uint32_t iCat = 0; iCat < app.Tree.Categories.size(); ++iCat) {
 		const Category & category = app.Tree.Categories[iCat];
 
@@ -286,6 +287,9 @@ LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if((HWND)lParam == app->GDI.hAddCategory || (HWND)lParam == app->GDI.hAddMaterial) {
 			app->ActiveInput = ((HWND)lParam == app->GDI.hAddCategory) ? INPUT_FIELD::Category: INPUT_FIELD::Material; 
 			log_if_failed(::showInput(app->GDI, app->ActiveInput));
+		}
+		else if((HWND)lParam == app->GDI.hClear) {
+			TreeView_DeleteAllItems(app->GDI.hTree);
 		}
 		break;
 	}
