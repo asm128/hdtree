@@ -117,7 +117,6 @@ static int32_t createWindow(App & app, RECT & rcClient) {
 	return 0;
 }
 
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/) {
 	// Ensure that the common control DLL is loaded. 
 	INITCOMMONCONTROLSEX icc = {sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES};
@@ -163,6 +162,55 @@ static int wcstombs (std::string & output, const std::wstring & input)	{
 }
 #endif
 
+static HTREEITEM addTreeItem(App & app, const std::string & itemText, HTREEITEM hParent, HTREEITEM hPrev, const TVImages & tvImages) { 
+	TVITEM		tvi		= {}; 
+	HWND		hTree	= app.GDI.hTree;
+	HTREEITEM	hItem	= {};
+	{ // add item
+		TVINSERTSTRUCT tvins = {}; 
+		tvi.mask			= TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM; 
+#ifdef UNICODE
+		std::wstring text;
+		mbstowcs(text, category.Name);
+#else
+		std::string text = itemText;
+#endif
+		tvi.pszText			= &text[0];
+		tvi.cchTextMax		= (int)text.size();
+		tvi.iImage			= tvImages.Material; 
+		tvi.iSelectedImage	= tvImages.Material; 
+		tvi.lParam			= (LPARAM)&app; 
+
+		tvins.item			= tvi; 
+		tvins.hInsertAfter	= hPrev; 
+		tvins.hParent		= hParent; 
+		fail_with_val_if((HTREEITEM)0, (0 == (hItem = (HTREEITEM)SendMessage(hTree, TVM_INSERTITEM, 0, (LPARAM)(LPTVINSERTSTRUCT)&tvins))));	// Add the item to the tree-view control. 
+	}
+
+	if (hParent != TVI_ROOT) { // The new item is a child item. Give the parent item a closed folder bitmap to indicate it now has child items. 
+		tvi.mask			= TVIF_IMAGE | TVIF_SELECTEDIMAGE; 
+		tvi.hItem			= hParent;
+		tvi.iImage			= tvImages.CategoryClosed; 
+		tvi.iSelectedImage	= tvImages.CategoryClosed; 
+		TreeView_SetItem(hTree, &tvi); 
+	} 
+	return hItem;
+} 
+
+static int32_t refreshTree(App & app) {
+	for(uint32_t iCat = 0; iCat < app.Tree.Categories.size(); ++iCat) {
+		const Category & category = app.Tree.Categories[iCat];
+
+		HTREEITEM hCat;
+		log_if(0 == (hCat = addTreeItem(app, category.Name, (HTREEITEM)TVI_ROOT, (HTREEITEM)TVI_LAST, app.GDI.Images)));
+
+		for(uint32_t iMat = 0; iMat < category.Materials.size(); ++iMat) {
+			log_if(0 == addTreeItem(app, category.Materials[iMat], hCat, (HTREEITEM)TVI_LAST, app.GDI.Images));
+		}
+	}
+	return 0;
+}
+
 static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR /*uIdSubclass*/, DWORD_PTR dwRefData) {
 	App & app = *(App*)dwRefData;
 	switch(uMsg) {
@@ -194,6 +242,7 @@ static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			log_if_failed((app.ActiveInput == INPUT_FIELD::Category) ? app.Tree.AddCategory(newName) : app.Tree.AddMaterial(categoryName, newName));
 			log_if_failed(::hideInput(app.GDI));
+			log_if_failed(::refreshTree(app));
 			return 0;
 		}
 		}

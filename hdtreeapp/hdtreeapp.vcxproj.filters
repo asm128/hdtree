@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hdtreeview.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="hdtreeapp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
