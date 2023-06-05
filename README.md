@@ -14,4 +14,7 @@ Notes:
 - The application provides buttons for adding categories and materials. The button enables a text input field which creates the category or material on pressing the `enter` key.
 - The contents of the window adjust their size and position if the window is resized.
 
+Architecture overview:
+- The [hdtree folder](https://github.com/asm128/hdtree/tree/master/hdtree) contains a static library that defines the business logic. It contains code that should build for every platform.
+- The [hdtreeapp folder](https://github.com/asm128/hdtree/tree/master/hdtreeapp) contains the application code that defines the graphical user interface. It provides a system-specific interface to the business logic provided by htree.
 
