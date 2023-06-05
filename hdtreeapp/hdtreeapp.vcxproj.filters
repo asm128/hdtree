@@ -26,9 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hdtreeview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="hdtreeapp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
