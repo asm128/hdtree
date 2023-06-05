@@ -34,43 +34,6 @@ static void calcButtonsPosition(const RECT & rcClient, n2u32 & xCat, n2u32 & xMa
 #define fail_if_failed(condition)	fail_if(0 > (int32_t)(condition))
 #define exit_if_failed(condition)	fail_with_val_if(EXIT_FAILURE, condition)
 
-static int32_t imageAdd(HINSTANCE hInstance, HIMAGELIST hList, const TCHAR* filename, int & out_imageIndex) {
-	HBITMAP hBitmap = LoadBitmap(hInstance, filename); 
-	fail_if(0 == hBitmap);
-	out_imageIndex = ImageList_Add(hList, hBitmap, (HBITMAP)NULL); 
-	DeleteObject(hBitmap); 
-	return (out_imageIndex >= 0) ? 0 : -1;
-}
-
-static int32_t createTreeViewImages(App & app) { 
-	HIMAGELIST hList = 0;
-	constexpr int NUM_BITMAPS   = 1;
-	fail_if(0 == (hList = ImageList_Create(SIZE_ICON.x, SIZE_ICON.y, FALSE, NUM_BITMAPS, 0)));
-
-	fail_if_failed(imageAdd(app.hInstance, hList, TEXT("CategoryEmpty.bmp")	, app.Images.CategoryEmpty));
-	fail_if_failed(imageAdd(app.hInstance, hList, TEXT("CategoryOpen.bmp")	, app.Images.CategoryOpen));
-	fail_if_failed(imageAdd(app.hInstance, hList, TEXT("CategoryClosed.bmp"), app.Images.CategoryClosed));
-	fail_if_failed(imageAdd(app.hInstance, hList, TEXT("Material.bmp")		, app.Images.Material));
-	
-	fail_if(ImageList_GetImageCount(hList) < 4); // Fail if not all of the images were added. 
-
-	TreeView_SetImageList(app.hTree, hList, TVSIL_NORMAL); // Associate the image list with the tree-view control. 
-	return 0;
-}
-
-//static int32_t refreshTree(App & app) { 
-//	(void)app;
-//	//HTREEITEM hPrev			= (HTREEITEM)TVI_FIRST; 
-//	//HTREEITEM hPrevRootItem	= NULL; 
-//	//HTREEITEM hPrevLev2Item	= NULL; 
-//	return 0;
-//}
-
-enum class INPUT_FIELD : uint8_t {
-	Material,
-	Category
-};
-
 static int32_t hideInput(App & app) {
 	SetWindowText(app.hInput, TEXT(""));
 	ShowWindow(app.hInput, SW_HIDE);
@@ -78,6 +41,11 @@ static int32_t hideInput(App & app) {
 	ShowWindow(app.hAddMaterial, SW_SHOW);
 	return 0;
 }
+
+enum class INPUT_FIELD : uint8_t {
+	Material,
+	Category
+};
 
 static int32_t showInput(App & app, INPUT_FIELD	field) {
 	fail_if_failed(::hideInput(app));
@@ -97,6 +65,97 @@ static int32_t showInput(App & app, INPUT_FIELD	field) {
 	ShowWindow(app.hInput, SW_SHOW);
 	SetFocus(app.hInput);
 	return 0;
+}
+
+static int32_t imageAdd(HINSTANCE hInstance, HIMAGELIST hList, const TCHAR* filename, int & out_imageIndex) {
+	HBITMAP hBitmap = LoadBitmap(hInstance, filename); 
+	fail_if(0 == hBitmap);
+	out_imageIndex = ImageList_Add(hList, hBitmap, (HBITMAP)NULL); 
+	DeleteObject(hBitmap); 
+	return (out_imageIndex >= 0) ? 0 : -1;
+}
+
+static int32_t createTreeViewImages(App & app) { 
+	HIMAGELIST hList = 0;
+	constexpr int NUM_BITMAPS   = 1;
+	fail_if(0 == (hList = ImageList_Create(SIZE_ICON.x, SIZE_ICON.y, FALSE, NUM_BITMAPS, 0)));
+
+	log_if_failed(imageAdd(app.hInstance, hList, TEXT("CategoryEmpty.bmp")	, app.Images.CategoryEmpty));
+	log_if_failed(imageAdd(app.hInstance, hList, TEXT("CategoryOpen.bmp")	, app.Images.CategoryOpen));
+	log_if_failed(imageAdd(app.hInstance, hList, TEXT("CategoryClosed.bmp"), app.Images.CategoryClosed));
+	log_if_failed(imageAdd(app.hInstance, hList, TEXT("Material.bmp")		, app.Images.Material));
+	
+	log_if(ImageList_GetImageCount(hList) < 4); // Fail if not all of the images were added. 
+
+	TreeView_SetImageList(app.hTree, hList, TVSIL_NORMAL); // Associate the image list with the tree-view control. 
+	return 0;
+}
+
+static int32_t createTree(App & app, RECT & rcClient) {
+	RECT rcTree = {};
+	::calcTreeRect(rcClient, rcTree);
+
+	constexpr uint32_t STYLE_TREE = WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES;
+	app.hTree = CreateWindow(WC_TREEVIEW, TEXT("Tree View"), STYLE_TREE, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, app.hRoot, 0, app.hInstance, 0);
+	return app.hTree ? 0 : -1;
+}
+
+template<typename Tn2>
+static HWND createButton(App & app, HWND parent, Tn2 pos, const TCHAR * text) {
+	constexpr uint32_t STYLE_BUTTON	= WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON;
+	return CreateWindow(TEXT("BUTTON"), text, STYLE_BUTTON, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, parent, 0, app.hInstance, 0);
+}
+
+static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR /*uIdSubclass*/, DWORD_PTR dwRefData);
+static int32_t createButtons(App & app, RECT & rcClient) {
+	n2u32 posCat = {}, posMat = {}, posClr = {};
+	::calcButtonsPosition(rcClient, posCat, posMat, posClr);
+	fail_if(0 == (app.hAddCategory	= ::createButton(app, app.hRoot, posCat, TEXT("New category"))));
+	fail_if(0 == (app.hAddMaterial	= ::createButton(app, app.hRoot, posMat, TEXT("New material"))));
+	fail_if(0 == (app.hClear		= ::createButton(app, app.hRoot, posClr, TEXT("Clear tree"))));
+
+	constexpr uint32_t STYLE_EDIT	= WS_BORDER | WS_CHILD | WS_VISIBLE | ES_LEFT;// | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL;
+	app.hInput			= CreateWindowEx(0, TEXT("EDIT"), TEXT(""), STYLE_EDIT, posCat.x, posCat.y, SIZE_BUTTON.x * 2, SIZE_BUTTON.y, app.hRoot, 0, app.hInstance, 0);
+	SetWindowSubclass(app.hInput, &EditProc, 0, (DWORD_PTR)&app);
+	ShowWindow(app.hInput, SW_HIDE);
+	return (app.hAddCategory && app.hAddMaterial && app.hClear && app.hInput) ? 0 : -1;
+}
+
+static int32_t createWindow(App & app, RECT & rcClient) {
+	RECT rcWindow = rcClient;  // dimensions of client area 
+	AdjustWindowRect(&rcWindow, WS_OVERLAPPEDWINDOW, 0);
+
+	constexpr uint32_t STYLE_ROOT = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
+	fail_if(0 == (app.hRoot = CreateWindow(app.WndClass.lpszClassName, TEXT("Caption"), STYLE_ROOT, CW_USEDEFAULT, CW_USEDEFAULT, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, 0, 0, app.hInstance, &app)));
+	return 0;
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/) {
+	// Ensure that the common control DLL is loaded. 
+	INITCOMMONCONTROLSEX icc = {sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES};
+	InitCommonControlsEx(&icc); 
+
+	App	app	= {hInstance};
+
+	exit_if_failed(0 == RegisterClassEx(&app.WndClass));
+
+	RECT rcClient = {0, 0, 800, 600};  // dimensions of client area 
+
+	exit_if_failed(::createWindow (app, rcClient));
+	exit_if_failed(::createTree   (app, rcClient));
+	exit_if_failed(::createButtons(app, rcClient));
+	log_if_failed(::createTreeViewImages(app));
+
+	//exit_with_error_if(0 > ::createInput  (app, rcClient));
+
+	MSG msg		= {};
+	msg.wParam	= EXIT_FAILURE;
+	while(GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return int(msg.wParam);
 }
 
 #ifdef UNICODE
@@ -144,72 +203,6 @@ static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		}
 	}
 	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-}
-
-static int32_t createTree(App & app, RECT & rcClient) {
-	RECT rcTree = {};
-	::calcTreeRect(rcClient, rcTree);
-
-	constexpr uint32_t STYLE_TREE = WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES;
-	app.hTree = CreateWindow(WC_TREEVIEW, TEXT("Tree View"), STYLE_TREE, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, app.hRoot, 0, app.hInstance, 0);
-	return app.hTree ? 0 : -1;
-}
-
-template<typename Tn2>
-static HWND createButton(App & app, HWND parent, Tn2 pos, const TCHAR * text) {
-	constexpr uint32_t STYLE_BUTTON	= WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON;
-	return CreateWindow(TEXT("BUTTON"), text, STYLE_BUTTON, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, parent, 0, app.hInstance, 0);
-}
-
-static int32_t createButtons(App & app, RECT & rcClient) {
-	n2u32 posCat = {}, posMat = {}, posClr = {};
-	::calcButtonsPosition(rcClient, posCat, posMat, posClr);
-	fail_if(0 == (app.hAddCategory	= ::createButton(app, app.hRoot, posCat, TEXT("New category"))));
-	fail_if(0 == (app.hAddMaterial	= ::createButton(app, app.hRoot, posMat, TEXT("New material"))));
-	fail_if(0 == (app.hClear		= ::createButton(app, app.hRoot, posClr, TEXT("Clear tree"))));
-
-	constexpr uint32_t STYLE_EDIT	= WS_BORDER | WS_CHILD | WS_VISIBLE | ES_LEFT;// | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL;
-	app.hInput			= CreateWindowEx(0, TEXT("EDIT"), TEXT(""), STYLE_EDIT, posCat.x, posCat.y, SIZE_BUTTON.x * 2, SIZE_BUTTON.y, app.hRoot, 0, app.hInstance, 0);
-	SetWindowSubclass(app.hInput, &EditProc, 0, (DWORD_PTR)&app);
-	ShowWindow(app.hInput, SW_HIDE);
-	return (app.hAddCategory && app.hAddMaterial && app.hClear && app.hInput) ? 0 : -1;
-}
-
-static int32_t createWindow(App & app, RECT & rcClient) {
-	RECT rcWindow = rcClient;  // dimensions of client area 
-	AdjustWindowRect(&rcWindow, WS_OVERLAPPEDWINDOW, 0);
-
-	constexpr uint32_t STYLE_ROOT = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
-	fail_if(0 == (app.hRoot = CreateWindow(app.WndClass.lpszClassName, TEXT("Caption"), STYLE_ROOT, CW_USEDEFAULT, CW_USEDEFAULT, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, 0, 0, app.hInstance, &app)));
-	return 0;
-}
-
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/) {
-	// Ensure that the common control DLL is loaded. 
-	INITCOMMONCONTROLSEX icc = {sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES};
-	InitCommonControlsEx(&icc); 
-
-	App	app	= {hInstance};
-
-	exit_if_failed(0 == RegisterClassEx(&app.WndClass));
-
-	RECT rcClient = {0, 0, 800, 600};  // dimensions of client area 
-
-	exit_if_failed(::createWindow (app, rcClient));
-	exit_if_failed(::createTree   (app, rcClient));
-	exit_if_failed(::createButtons(app, rcClient));
-	exit_if_failed(::createTreeViewImages(app));
-
-	//exit_with_error_if(0 > ::createInput  (app, rcClient));
-
-	MSG msg		= {};
-	msg.wParam	= EXIT_FAILURE;
-	while(GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-	return int(msg.wParam);
 }
 
 LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
