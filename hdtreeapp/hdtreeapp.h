@@ -1,6 +1,7 @@
 #include "hdtree.h"
 
 #include <Windows.h>
+#include <CommCtrl.h>
 
 #ifndef HDTREEAPP_H_230604
 #define HDTREEAPP_H_230604
@@ -17,6 +18,12 @@ namespace hd
 	static constexpr n2u32 SIZE_BUTTON	= {96, 24};
 	static constexpr n2lng SIZE_MARGIN	= {2, 2};
 
+	enum class INPUT_FIELD : uint8_t {
+		None	= 0,
+		Material,
+		Category
+	};
+
 	// Holds 
 	struct TVImages {
 		int32_t	Material		= 0;
@@ -27,36 +34,32 @@ namespace hd
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	
-	enum class INPUT_FIELD : uint8_t {
-		Material,
-		Category
-	};
-
 	struct WinGDI {
-		HINSTANCE		hInstance		= {};
-		HWND			hRoot			= {};
-		HWND			hTree			= {};
-		HWND			hAddCategory	= {};
-		HWND			hAddMaterial	= {};
-		HWND			hClear			= {};
-		HWND			hInput			= {};
+		HINSTANCE	hInstance		= {};
+		HWND		hRoot			= {};
+		HWND		hTree			= {};
+		HWND		hAddCategory	= {};
+		HWND		hAddMaterial	= {};
+		HWND		hClear			= {};
+		HWND		hInput			= {};
+		HIMAGELIST	hList			= 0;
 
-		TVImages		Images			= {};
+		TVImages	Images			= {};
 
-		WNDCLASSEX		WndClass		= {};
+		WNDCLASSEX	WndClass		= {};
+
+		static void defaultWndClass(WNDCLASSEX & wndClass, HINSTANCE hInstance) {
+			wndClass				= {sizeof(WNDCLASSEX)};
+
+			wndClass.lpfnWndProc	= WndProc;
+			wndClass.hInstance		= hInstance;
+			wndClass.hCursor		= LoadCursor(NULL, IDC_ARROW);
+			wndClass.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+			wndClass.lpszClassName	= TEXT("HD_Window");
+			wndClass.hIcon			= LoadIcon(NULL, IDI_APPLICATION);
+			wndClass.hIconSm		= LoadIcon(NULL, IDI_APPLICATION);
+		}
 	};
-
-	static void defaultWndClass(WNDCLASSEX & wndClass, HINSTANCE hInstance) {
-		wndClass				= {sizeof(WNDCLASSEX)};
-
-		wndClass.lpfnWndProc	= WndProc;
-		wndClass.hInstance		= hInstance;
-		wndClass.hCursor		= LoadCursor(NULL, IDC_ARROW);
-		wndClass.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-		wndClass.lpszClassName	= TEXT("HD_Window");
-		wndClass.hIcon			= LoadIcon(NULL, IDI_APPLICATION);
-		wndClass.hIconSm		= LoadIcon(NULL, IDI_APPLICATION);
-	}
 
 	// 
 	struct App {
@@ -65,15 +68,10 @@ namespace hd
 		MaterialTree	Tree;
 
 		INPUT_FIELD		ActiveInput		= {};
-#ifdef UNICODE
-		std::wstring	NewName			= {};
-#else
-		std::string		NewName			= {};
-#endif
 
 		App	(HINSTANCE hInstance) 
 			: GDI{hInstance} { 
-			defaultWndClass(GDI.WndClass, GDI.hInstance); 
+			WinGDI::defaultWndClass(GDI.WndClass, GDI.hInstance); 
 		}
 	};
 } // namespace

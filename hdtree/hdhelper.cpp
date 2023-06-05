@@ -1,12 +1,11 @@
 #include "hdhelper.h"
 
+#include "hdlog.h"
+
 // The current implementation does a linear search. 
 // While it could be implemented for doing a binary search, it is possible that 
 // the cache misses it would trigger end up degrading performance instead
-int32_t hd::addUniqueStringWithoutDigitsOrdered (std::vector<std::string> & container, const std::string & stringToAdd) { 
-    if(0 == stringToAdd.size() || containsDigits(stringToAdd))
-        return -1;
-
+static int32_t addUniqueStringOrdered (std::vector<std::string> & container, const std::string & stringToAdd) { 
     for(std::vector<std::string>::iterator itCat = container.begin(); itCat != container.end(); ++itCat) {
         const std::string   & name      = *itCat;
         const int           index       = int(itCat - container.begin());
@@ -18,7 +17,7 @@ int32_t hd::addUniqueStringWithoutDigitsOrdered (std::vector<std::string> & cont
         }
 
         if(equalSize) {
-            if(signOrEqual == 0) // same size and contents, failure
+            if(name.size() == 0 || signOrEqual == 0) // same size and contents, failure
                 return -1;
             else // if not equal, categoryName is greater than name, so test next or add at the end.
                 continue;
@@ -35,4 +34,10 @@ int32_t hd::addUniqueStringWithoutDigitsOrdered (std::vector<std::string> & cont
     }
     container.push_back({stringToAdd});
     return int(container.size() - 1);
+}
+
+int32_t hd::addUniqueStringWithoutDigitsOrdered (std::vector<std::string> & container, const std::string & stringToAdd) { 
+    fail_if((0 == stringToAdd.size()) || containsDigits(stringToAdd));
+
+    return addUniqueStringOrdered(container, stringToAdd);
 }

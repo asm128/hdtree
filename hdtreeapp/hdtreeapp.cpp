@@ -1,6 +1,7 @@
 #include "hdtreeapp.h"
+#include "hdlog.h"
 
-#include <CommCtrl.h>
+#include <memory>
 
 using namespace hd;
 
@@ -16,112 +17,103 @@ static void calcButtonsPosition(const RECT & rcClient, n2u32 & xCat, n2u32 & xMa
 	xCat.y = xMat.y = xClr.y = rcClient.bottom - SIZE_MARGIN.y - SIZE_BUTTON.y;
 }
 
-#define log_if(condition)							\
-	if(condition) do {								\
-		OutputDebugString(TEXT(#condition "\n"));	\
-		printf("%s\n", #condition);			\
-	} while(0)
-
-#define fail_with_val_if(val, condition)			\
-	if(condition) do {								\
-		OutputDebugString(TEXT(#condition "\n"));	\
-		printf("%s\n", #condition);					\
-		return (val);								\
-	} while(0)
-
-#define log_if_failed(condition)	log_if(0 > (int32_t)(condition))
-#define fail_if(condition)			fail_with_val_if(-1, condition)
-#define fail_if_failed(condition)	fail_if(0 > (int32_t)(condition))
-#define exit_if_failed(condition)	fail_with_val_if(EXIT_FAILURE, condition)
-
-static int32_t hideInput(App & app) {
-	SetWindowText(app.GDI.hInput, TEXT(""));
-	ShowWindow(app.GDI.hInput, SW_HIDE);
-	ShowWindow(app.GDI.hAddCategory, SW_SHOW);
-	ShowWindow(app.GDI.hAddMaterial, SW_SHOW);
+static int32_t hideInput(WinGDI & gdi) {
+	SetWindowText(gdi.hInput, TEXT(""));
+	ShowWindow(gdi.hInput, SW_HIDE);
+	ShowWindow(gdi.hAddCategory, SW_SHOW);
+	ShowWindow(gdi.hAddMaterial, SW_SHOW);
 	return 0;
 }
 
-static int32_t showInput(App & app, INPUT_FIELD	field) {
-	fail_if_failed(::hideInput(app));
+static int32_t showInput(WinGDI & gdi, INPUT_FIELD	field) {
+	fail_if_failed(::hideInput(gdi));
 
-	HWND hButton = (field == ::INPUT_FIELD::Material) ? app.GDI.hAddMaterial : app.GDI.hAddCategory;
+	HWND hButton = (field == INPUT_FIELD::Material) ? gdi.hAddMaterial : gdi.hAddCategory;
 	RECT rcClient = {};
-	GetClientRect(app.GDI.hRoot, &rcClient);
+	GetClientRect(gdi.hRoot, &rcClient);
 
 	n2u32 posCat = {}, posMat = {}, posClr = {};
 	::calcButtonsPosition(rcClient, posCat, posMat, posClr);
 
-	n2u32 pos = (field == ::INPUT_FIELD::Material) ? posMat : posCat;
-	SetWindowPos(app.GDI.hInput, 0, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
-	UpdateWindow(app.GDI.hInput);
+	n2u32 pos = (field == INPUT_FIELD::Material) ? posMat : posCat;
+	SetWindowPos(gdi.hInput, 0, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
+	UpdateWindow(gdi.hInput);
 
 	ShowWindow(hButton, SW_HIDE);
-	ShowWindow(app.GDI.hInput, SW_SHOW);
-	SetFocus(app.GDI.hInput);
+	ShowWindow(gdi.hInput, SW_SHOW);
+	SetFocus(gdi.hInput);
 	return 0;
 }
 
 static int32_t imageAdd(HINSTANCE hInstance, HIMAGELIST hList, const TCHAR* filename, int & out_imageIndex) {
-	HBITMAP hBitmap = LoadBitmap(hInstance, filename); 
-	fail_if(0 == hBitmap);
-	out_imageIndex = ImageList_Add(hList, hBitmap, (HBITMAP)NULL); 
-	DeleteObject(hBitmap); 
-	return (out_imageIndex >= 0) ? 0 : -1;
-}
+	struct Deleter { 
+		HBITMAP hBitmap = 0;
 
-static int32_t createTreeViewImages(App & app) { 
-	HIMAGELIST hList = 0;
-	constexpr int NUM_BITMAPS   = 1;
-	fail_if(0 == (hList = ImageList_Create(SIZE_ICON.x, SIZE_ICON.y, FALSE, NUM_BITMAPS, 0)));
+		~Deleter() { if(hBitmap) DeleteObject(hBitmap); }
 
-	log_if_failed(imageAdd(app.GDI.hInstance, hList, TEXT("CategoryEmpty.bmp")	, app.GDI.Images.CategoryEmpty));
-	log_if_failed(imageAdd(app.GDI.hInstance, hList, TEXT("CategoryOpen.bmp")	, app.GDI.Images.CategoryOpen));
-	log_if_failed(imageAdd(app.GDI.hInstance, hList, TEXT("CategoryClosed.bmp")	, app.GDI.Images.CategoryClosed));
-	log_if_failed(imageAdd(app.GDI.hInstance, hList, TEXT("Material.bmp")		, app.GDI.Images.Material));
-	
-	log_if(ImageList_GetImageCount(hList) < 4); // Fail if not all of the images were added. 
+		HBITMAP get_and_clear() { HBITMAP h = hBitmap; hBitmap = (HBITMAP)0; return h; }
+	};
 
-	TreeView_SetImageList(app.GDI.hTree, hList, TVSIL_NORMAL); // Associate the image list with the tree-view control. 
+	Deleter	bmp; 
+	fail_if(0 == (bmp.hBitmap = LoadBitmap(hInstance, filename)));
+	fail_if(0 > (out_imageIndex = ImageList_Add(hList, bmp.get_and_clear(), (HBITMAP)0))); 
 	return 0;
 }
 
-static int32_t createTree(App & app, RECT & rcClient) {
+static int32_t createTreeViewImages(WinGDI & gdi) { 
+	constexpr int NUM_BITMAPS   = 1;
+	fail_if(0 == (gdi.hList = ImageList_Create(SIZE_ICON.x, SIZE_ICON.y, FALSE, NUM_BITMAPS, 0)));
+
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("CategoryEmpty.bmp")	, gdi.Images.CategoryEmpty));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("CategoryOpen.bmp")	, gdi.Images.CategoryOpen));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("CategoryClosed.bmp")	, gdi.Images.CategoryClosed));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("Material.bmp")		, gdi.Images.Material));
+	
+	log_if(ImageList_GetImageCount(gdi.hList) < 4); // Fail if not all of the images were added. 
+
+	TreeView_SetImageList(gdi.hTree, gdi.hList, TVSIL_NORMAL); // Associate the image list with the tree-view control. 
+	return 0;
+}
+
+static int32_t createTree(WinGDI & gdi, RECT & rcClient) {
 	RECT rcTree = {};
 	::calcTreeRect(rcClient, rcTree);
 
 	constexpr uint32_t STYLE_TREE = WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES;
-	app.GDI.hTree = CreateWindow(WC_TREEVIEW, TEXT("Tree View"), STYLE_TREE, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, app.GDI.hRoot, 0, app.GDI.hInstance, 0);
-	return app.GDI.hTree ? 0 : -1;
+	fail_if(0 == (gdi.hTree = CreateWindow(WC_TREEVIEW, TEXT("Tree View"), STYLE_TREE, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, gdi.hRoot, 0, gdi.hInstance, 0)));
+	return 0;
 }
 
 template<typename Tn2>
-static HWND createButton(App & app, HWND parent, Tn2 pos, const TCHAR * text) {
+static HWND createButton(WinGDI & gdi, HWND parent, Tn2 pos, const TCHAR * text) {
 	constexpr uint32_t STYLE_BUTTON	= WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON;
-	return CreateWindow(TEXT("BUTTON"), text, STYLE_BUTTON, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, parent, 0, app.GDI.hInstance, 0);
+	return CreateWindow(TEXT("BUTTON"), text, STYLE_BUTTON, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, parent, 0, gdi.hInstance, 0);
 }
 
 static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR /*uIdSubclass*/, DWORD_PTR dwRefData);
 static int32_t createButtons(App & app, RECT & rcClient) {
-	n2u32 posCat = {}, posMat = {}, posClr = {};
+	n2u32	posCat	= {}, posMat = {}, posClr = {};
 	::calcButtonsPosition(rcClient, posCat, posMat, posClr);
-	fail_if(0 == (app.GDI.hAddCategory	= ::createButton(app, app.GDI.hRoot, posCat, TEXT("New category"))));
-	fail_if(0 == (app.GDI.hAddMaterial	= ::createButton(app, app.GDI.hRoot, posMat, TEXT("New material"))));
-	fail_if(0 == (app.GDI.hClear		= ::createButton(app, app.GDI.hRoot, posClr, TEXT("Clear tree"))));
+
+	WinGDI	& gdi	= app.GDI;
+	fail_if(0 == (gdi.hAddCategory	= ::createButton(gdi, gdi.hRoot, posCat, TEXT("New category"))));
+	fail_if(0 == (gdi.hAddMaterial	= ::createButton(gdi, gdi.hRoot, posMat, TEXT("New material"))));
+	fail_if(0 == (gdi.hClear		= ::createButton(gdi, gdi.hRoot, posClr, TEXT("Clear tree"))));
 
 	constexpr uint32_t STYLE_EDIT	= WS_BORDER | WS_CHILD | WS_VISIBLE | ES_LEFT;// | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL;
-	app.GDI.hInput			= CreateWindowEx(0, TEXT("EDIT"), TEXT(""), STYLE_EDIT, posCat.x, posCat.y, SIZE_BUTTON.x * 2, SIZE_BUTTON.y, app.GDI.hRoot, 0, app.GDI.hInstance, 0);
-	SetWindowSubclass(app.GDI.hInput, &EditProc, 0, (DWORD_PTR)&app);
+	fail_if(0 == (gdi.hInput = CreateWindowEx(0, TEXT("EDIT"), TEXT(""), STYLE_EDIT, posCat.x, posCat.y, SIZE_BUTTON.x * 2, SIZE_BUTTON.y, app.GDI.hRoot, 0, app.GDI.hInstance, 0)));
+	SetWindowSubclass(gdi.hInput, &EditProc, 0, (DWORD_PTR)&app);
 	ShowWindow(app.GDI.hInput, SW_HIDE);
 	return (app.GDI.hAddCategory && app.GDI.hAddMaterial && app.GDI.hClear && app.GDI.hInput) ? 0 : -1;
 }
 
 static int32_t createWindow(App & app, RECT & rcClient) {
-	RECT rcWindow = rcClient;  // dimensions of client area 
+	WinGDI	& gdi = app.GDI;
+	RECT	rcWindow = rcClient;  // dimensions of client area 
 	AdjustWindowRect(&rcWindow, WS_OVERLAPPEDWINDOW, 0);
 
-	constexpr uint32_t STYLE_ROOT = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
-	fail_if(0 == (app.GDI.hRoot = CreateWindow(app.GDI.WndClass.lpszClassName, TEXT("Caption"), STYLE_ROOT, CW_USEDEFAULT, CW_USEDEFAULT, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, 0, 0, app.GDI.hInstance, &app)));
+	constexpr uint32_t STYLE_ROOT = WS_VISIBLE | WS_OVERLAPPEDWINDOW; 
+	fail_if(0 == (gdi.hRoot = CreateWindow(gdi.WndClass.lpszClassName, TEXT("Caption"), STYLE_ROOT, CW_USEDEFAULT, CW_USEDEFAULT, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, 0, 0, gdi.hInstance, &app)));
 	return 0;
 }
 
@@ -137,10 +129,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 
 	RECT rcClient = {0, 0, 800, 600};  // dimensions of client area 
 
-	exit_if_failed(::createWindow (app, rcClient));
-	exit_if_failed(::createTree   (app, rcClient));
+	exit_if_failed(::createWindow(app, rcClient));
+
+	exit_if_failed(::createTree(app.GDI, rcClient));
+	log_if_failed(::createTreeViewImages(app.GDI));
+
 	exit_if_failed(::createButtons(app, rcClient));
-	log_if_failed(::createTreeViewImages(app));
 
 	//exit_with_error_if(0 > ::createInput  (app, rcClient));
 
@@ -175,24 +169,31 @@ static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	case WM_CHAR:
 		switch(wParam) {
 		case VK_ESCAPE:	
-			log_if_failed(::hideInput(app));
+			log_if_failed(::hideInput(app.GDI));
 			return 0;
 		case VK_RETURN: {
 			size_t length = GetWindowTextLength(hWnd);
+#ifdef UNICODE
+			std::wstring tName = {};
+#else
+			std::string	tName = {};
+#endif
 			if(0 == length)
-				app.NewName.clear();
+				tName.clear();
 			else {
-				app.NewName.resize(length + 1);
-				GetWindowText(hWnd, &app.NewName[0], (int)app.NewName.size());
+				tName.resize(length + 1);
+				GetWindowText(hWnd, &tName[0], (int)tName.size());
 			}
 #ifdef UNICODE
-			std::string newName		= {};
-			::wcstombs(newName, app.NewName);
+			std::string newName = {};
+			::wcstombs(newName, tName);
 #else
-			std::string & newName	= app.NewName;
+			std::string & newName = tName;
 #endif
-			log_if_failed(app.Tree.AddCategory(newName));
-			log_if_failed(::hideInput(app));
+			std::string categoryName = app.Tree.Categories.size() ? app.Tree.Categories[0].Name : std::string{};	// #TODO: grab this from the GDI or from a member in App.
+
+			log_if_failed((app.ActiveInput == INPUT_FIELD::Category) ? app.Tree.AddCategory(newName) : app.Tree.AddMaterial(categoryName, newName));
+			log_if_failed(::hideInput(app.GDI));
 			return 0;
 		}
 		}
@@ -220,8 +221,10 @@ LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch(uMsg) {
 	case WM_COMMAND: {
-			 if((HWND)lParam == app->GDI.hAddCategory) { app->ActiveInput = INPUT_FIELD::Category; ::showInput(*app, app->ActiveInput); }
-		else if((HWND)lParam == app->GDI.hAddMaterial) { app->ActiveInput = INPUT_FIELD::Material; ::showInput(*app, app->ActiveInput); }
+		if((HWND)lParam == app->GDI.hAddCategory || (HWND)lParam == app->GDI.hAddMaterial) {
+			app->ActiveInput = ((HWND)lParam == app->GDI.hAddCategory) ? INPUT_FIELD::Category: INPUT_FIELD::Material; 
+			log_if_failed(::showInput(app->GDI, app->ActiveInput));
+		}
 		break;
 	}
 	case WM_DESTROY:
