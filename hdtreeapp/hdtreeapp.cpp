@@ -190,8 +190,8 @@ static HTREEITEM addTreeItem(App & app, const std::string & itemText, HTREEITEM 
 #endif
 		tvi.pszText			= &text[0];
 		tvi.cchTextMax		= (int)text.size();
-		tvi.iImage			= tvImages.Material; 
-		tvi.iSelectedImage	= tvImages.Material; 
+		tvi.iImage			= (hParent == TVI_ROOT) ? tvImages.CategoryEmpty : tvImages.Material; 
+		tvi.iSelectedImage	= (hParent == TVI_ROOT) ? tvImages.CategoryEmpty : tvImages.Material; 
 		tvi.lParam			= (LPARAM)&app; 
 
 		tvins.item			= tvi; 

@@ -69,8 +69,8 @@ namespace hd
 		MaterialTree	Tree;
 
 		INPUT_FIELD		ActiveInput		= {};
-
 	};
+
 } // namespace
 
 #endif // HDTREEAPP_H_230604
