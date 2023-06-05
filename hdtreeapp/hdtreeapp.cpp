@@ -147,7 +147,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 }
 
 #ifdef UNICODE
-static int wcstombs (std::string & output, const std::wstring & input)	{
+static int wcstombs (std::string & output, const std::wstring & input) {
 	if(0 == input.size())
 		return 0;
 
@@ -156,10 +156,23 @@ static int wcstombs (std::string & output, const std::wstring & input)	{
 
 	std::string converted;
 	converted.resize(sizeNeededForMultiByte);
-	WideCharToMultiByte(CP_UTF8, 0, &input[0], (int)input.size(), &converted[0], (int)converted.size(), 0, 0);
+	fail_if(0 == WideCharToMultiByte(CP_UTF8, 0, &input[0], (int)input.size(), &converted[0], (int)converted.size(), 0, 0));
 	output.append(converted);
 	return sizeNeededForMultiByte;
 }
+
+static int mbstowcs (std::wstring & output, const std::string & input)	{
+	if(0 == input.size())
+		return 0;
+
+	std::wstring converted;
+	converted.resize(input.size());
+	fail_if(0 == MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, &input[0], (int)input.size(), &converted[0], (int)converted.size()));
+	converted.resize((uint32_t)wcslen(&converted[0]));
+	output.append(converted);
+	return (int)converted.size();
+}
+
 #endif
 
 static HTREEITEM addTreeItem(App & app, const std::string & itemText, HTREEITEM hParent, HTREEITEM hPrev, const TVImages & tvImages) { 
@@ -171,7 +184,7 @@ static HTREEITEM addTreeItem(App & app, const std::string & itemText, HTREEITEM 
 		tvi.mask			= TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM; 
 #ifdef UNICODE
 		std::wstring text;
-		mbstowcs(text, category.Name);
+		mbstowcs(text, itemText);
 #else
 		std::string text = itemText;
 #endif
