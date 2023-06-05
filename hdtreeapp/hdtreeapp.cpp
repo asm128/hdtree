@@ -34,7 +34,7 @@ static int32_t showInput(WinGDI & gdi, INPUT_FIELD field, bool clear = false) {
 	return 0;
 }
 
-static int32_t imageAdd(HINSTANCE hInstance, HIMAGELIST hList, const TCHAR* filename, int & out_imageIndex) {
+static int32_t imageAdd(HIMAGELIST hList, const TCHAR* filename, int & out_imageIndex) {
 	struct Deleter { 
 		HBITMAP hBitmap = 0;
 
@@ -44,7 +44,7 @@ static int32_t imageAdd(HINSTANCE hInstance, HIMAGELIST hList, const TCHAR* file
 	};
 
 	Deleter	bmp; 
-	fail_if(0 == (bmp.hBitmap = LoadBitmap(hInstance, filename)));
+	fail_if(0 == (bmp.hBitmap = (HBITMAP)LoadImage(0, filename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE)));
 	fail_if(0 > (out_imageIndex = ImageList_Add(hList, bmp.get_and_clear(), (HBITMAP)0))); 
 	return 0;
 }
@@ -53,10 +53,10 @@ static int32_t createTreeViewImages(WinGDI & gdi) {
 	constexpr int NUM_BITMAPS   = 1;
 	fail_if(0 == (gdi.hList = ImageList_Create(SIZE_ICON.x, SIZE_ICON.y, FALSE, NUM_BITMAPS, 0)));
 
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("empty.png")		, gdi.Images.CategoryEmpty));
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("open.png")		, gdi.Images.CategoryOpen));
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("closed.png")		, gdi.Images.CategoryClosed));
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("material.png")	, gdi.Images.Material));
+	log_if_failed(imageAdd(gdi.hList, TEXT("./empty.bmp")		, gdi.Images.CategoryEmpty));
+	log_if_failed(imageAdd(gdi.hList, TEXT("./open.bmp")		, gdi.Images.CategoryOpen));
+	log_if_failed(imageAdd(gdi.hList, TEXT("./closed.bmp")		, gdi.Images.CategoryClosed));
+	log_if_failed(imageAdd(gdi.hList, TEXT("./material.bmp")	, gdi.Images.Material));
 	
 	log_if(ImageList_GetImageCount(gdi.hList) < 4); // Fail if not all of the images were added. 
 
