@@ -3,7 +3,7 @@ WinAPI application that allows the creation of a tree containing categories as f
 This repository provides fully-working project files for building the code with RAD Studio and Visual Studio 2022 using the latest C++ standard available.
 
 Instructions:
-- Install Visual Studio 2022 and/or RAD Studio 11.
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/) with the C++ packages and/or [RAD Studio 11](https://www.embarcadero.com/products/cbuilder).
 - Open hdtree.sln and/or hdtreeappGroup.groupproj, respectively.
 - Build everythig and run.
 - You still need to copy the .bmp files manually to the folder where the .exe is located, except when running the program from Visual Studio.
