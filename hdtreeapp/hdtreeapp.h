@@ -1,7 +1,9 @@
 #include "hdtree.h"
 
-#include <Windows.h>
-#include <CommCtrl.h>
+#ifdef _WIN32
+#	include <Windows.h>
+#	include <CommCtrl.h>
+#endif
 
 #ifndef HDTREEAPP_H_230604
 #define HDTREEAPP_H_230604
@@ -24,7 +26,7 @@ namespace hd
 		Category
 	};
 
-	// Holds 
+#ifdef _WIN32
 	struct TVImages {
 		int32_t	Material		= 0;
 		int32_t	CategoryEmpty	= 0;
@@ -60,19 +62,19 @@ namespace hd
 			wndClass.hIconSm		= LoadIcon(NULL, IDI_APPLICATION);
 		}
 	};
+#endif
 
 	// 
 	struct App {
+#ifdef _WIN32
 		WinGDI			GDI;
 
+		App(HINSTANCE hInstance) : GDI{hInstance} { WinGDI::defaultWndClass(GDI.WndClass, GDI.hInstance); }
+#endif
 		MaterialTree	Tree;
 
 		INPUT_FIELD		ActiveInput		= {};
 
-		App	(HINSTANCE hInstance) 
-			: GDI{hInstance} { 
-			WinGDI::defaultWndClass(GDI.WndClass, GDI.hInstance); 
-		}
 	};
 } // namespace
 
