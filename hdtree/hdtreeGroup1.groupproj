@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{5659FB57-26F1-44BB-AE52-619ED30D2FD2}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="hdtree.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="hdtree">
+        <MSBuild Projects="hdtree.cbproj"/>
+    </Target>
+    <Target Name="hdtree:Clean">
+        <MSBuild Projects="hdtree.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hdtree:Make">
+        <MSBuild Projects="hdtree.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="hdtree"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="hdtree:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="hdtree:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

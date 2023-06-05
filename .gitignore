@@ -1,2 +1,5 @@
 ﻿/.vs
 /packages/Microsoft.Windows.CppWinRT.2.0.220531.1
+/hdtree/Win64/Debug
+/hdtree/__astcache
+/hdtree/__history
