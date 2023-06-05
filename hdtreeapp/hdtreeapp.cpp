@@ -53,10 +53,10 @@ static int32_t createTreeViewImages(WinGDI & gdi) {
 	constexpr int NUM_BITMAPS   = 1;
 	fail_if(0 == (gdi.hList = ImageList_Create(SIZE_ICON.x, SIZE_ICON.y, FALSE, NUM_BITMAPS, 0)));
 
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("CategoryEmpty.bmp")	, gdi.Images.CategoryEmpty));
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("CategoryOpen.bmp")	, gdi.Images.CategoryOpen));
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("CategoryClosed.bmp")	, gdi.Images.CategoryClosed));
-	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("Material.bmp")		, gdi.Images.Material));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("empty.png")		, gdi.Images.CategoryEmpty));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("open.png")		, gdi.Images.CategoryOpen));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("closed.png")		, gdi.Images.CategoryClosed));
+	log_if_failed(imageAdd(gdi.hInstance, gdi.hList, TEXT("material.png")	, gdi.Images.Material));
 	
 	log_if(ImageList_GetImageCount(gdi.hList) < 4); // Fail if not all of the images were added. 
 
@@ -75,7 +75,7 @@ static int32_t createTree(WinGDI & gdi, n2u32 & targetSize) {
 
 template<typename Tn2>
 static HWND createButton(WinGDI & gdi, HWND parent, Tn2 pos, const TCHAR * text) {
-	constexpr uint32_t STYLE_BUTTON	= WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON;
+	constexpr uint32_t STYLE_BUTTON	= WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON;
 	return CreateWindow(TEXT("BUTTON"), text, STYLE_BUTTON, pos.x, pos.y, SIZE_BUTTON.x, SIZE_BUTTON.y, parent, 0, gdi.hInstance, 0);
 }
 
@@ -144,6 +144,7 @@ static int wcstombs (std::string & output, const std::wstring & input) {
 	std::string converted;
 	converted.resize(sizeNeededForMultiByte);
 	fail_if(0 == WideCharToMultiByte(CP_UTF8, 0, &input[0], (int)input.size(), &converted[0], (int)converted.size(), 0, 0));
+	converted.resize((uint32_t)strlen(&converted[0]));
 	output.append(converted);
 	return sizeNeededForMultiByte;
 }
@@ -239,10 +240,17 @@ static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 #else
 			std::string & newName = tName;
 #endif
-			if(app.ActiveInput == INPUT_FIELD::Category)
+			if(app.ActiveInput == INPUT_FIELD::Category) {
+				app.SelectedCategory = tName;
 				log_if_failed(app.Tree.AddCategory(newName));
+			}
 			else {
-				std::string categoryName = app.Tree.Categories.size() ? app.Tree.Categories[app.Tree.Categories.size() - 1].Name : std::string{};	// #TODO: grab this from the GDI or from a member in App.
+#ifdef UNICODE
+				std::string categoryName;
+				::wcstombs(categoryName, app.SelectedCategory);
+#else
+				const std::string & categoryName = app.SelectedCategory;
+#endif
 				log_if_failed(app.Tree.AddMaterial(categoryName, newName));
 			}
 			log_if_failed(::hideInput(app.GDI, true));
@@ -281,7 +289,28 @@ LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else if((HWND)lParam == app->GDI.hClear) {
 			log_if_failed(::hideInput(app->GDI));
+			app->Tree = {};
+			app->SelectedCategory = {};
 			TreeView_DeleteAllItems(app->GDI.hTree);
+		}
+		break;
+	}
+	case WM_NOTIFY: {
+		const NMHDR	* nmhdr		= (NMHDR*)lParam;
+		const int	controlId	= (int)wParam;
+		if(nmhdr->code == TVN_SELCHANGED && controlId == GetDlgCtrlID(app->GDI.hTree)) {
+			TCHAR		buffer[256] = {};
+			HTREEITEM	hItem = TreeView_GetSelection(app->GDI.hTree);
+			if(0 == TreeView_GetParent(app->GDI.hTree, hItem)) {
+				TVITEM		tvItem = {};
+				tvItem.hItem		= hItem;
+				tvItem.mask			= TVIF_TEXT;
+				tvItem.cchTextMax	= sizeof(buffer);
+				tvItem.pszText		= buffer;
+				TreeView_GetItem(app->GDI.hTree, &tvItem);
+				if(tvItem.pszText)
+					app->SelectedCategory = {tvItem.pszText};
+			}
 		}
 		break;
 	}

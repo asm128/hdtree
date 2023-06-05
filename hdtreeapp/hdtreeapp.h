@@ -22,6 +22,12 @@ namespace hd
 	};
 
 #ifdef _WIN32
+#ifdef UNICODE
+		typedef std::wstring	tstring;
+#else
+		typedef std::string		tstring;
+#endif
+
 	struct TVImages {
 		int32_t	Material		= 0;
 		int32_t	CategoryEmpty	= 0;
@@ -63,6 +69,7 @@ namespace hd
 	struct App {
 #ifdef _WIN32
 		WinGDI			GDI;
+		tstring			SelectedCategory;
 
 		App(HINSTANCE hInstance) : GDI{hInstance} { WinGDI::defaultWndClass(GDI.WndClass, GDI.hInstance); }
 #endif

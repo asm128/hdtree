@@ -23,7 +23,9 @@ namespace hd
         }
 
         int32_t                 AddMaterial (const std::string & categoryName, const std::string & materialName) { 
-            std::vector<Category>::iterator itCat = std::find_if(Categories.begin(), Categories.end(), [categoryName](const Category & category) { return category.Name == categoryName; });
+            std::vector<Category>::iterator itCat = std::find_if(Categories.begin(), Categories.end(), [categoryName](const Category & category) { 
+                return category.Name == categoryName; 
+            });
             fail_if(itCat == Categories.end());
             fail_if_failed(itCat->AddMaterial(materialName));
             return 0;
