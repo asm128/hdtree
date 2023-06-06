@@ -1,5 +1,5 @@
 # hdtree
-WinAPI application that allows the creation of a tree containing categories as first-level items and materials contained by these categories.
+`Windows` application that allows the creation of a tree containing categories as first-level items and materials contained by these categories.
 This repository provides fully-working project files for building the code with [RAD Studio 11](https://www.embarcadero.com/products/cbuilder) and [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/) using the latest [ISO C++ Standard](https://www.google.com/search?q=iso+C%2B%2B) available.
 
 Instructions:
