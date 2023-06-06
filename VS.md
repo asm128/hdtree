@@ -1,6 +1,6 @@
 # How to set up a new C++ project in `Visual Studio 2022`
 
-1. Download and execute the [Visual Studio 2022 Installer](https://visualstudio.microsoft.com/vs/community/) from the Microsoft website. Then select Visual Studio Community 2022 and click on the `Install` button. If you already installed Visual Studio 2022, you can move on to `step 4`.
+1. `Download and execute` the [Visual Studio 2022 Installer](https://visualstudio.microsoft.com/vs/community/) from the Microsoft website. Then select `Visual Studio Community 2022` and click on the `Install` button. If you `already installed` Visual Studio 2022, you can move on to `step 4`.
 
 ![Visual Studio Installer - Available](https://github.com/asm128/hdtree/assets/26621255/9ba87843-f8fa-4f70-ab8b-dbbc4c8e9efc)
 
@@ -70,6 +70,6 @@ int main()
 
 ![VS2017-19 - Hello World](https://github.com/asm128/hdtree/assets/26621255/0e3d8b0b-7d55-451a-84a8-a520685f68a7)
 
-### If you didn't set up Visual C++ settings during install you can do it later by going to menu `Tools` -> `Import and export settings` -> `Reset all settings` and the option will appear again. The screenshot shown is from that window because I had no fresh install of Visual Studio to see the window appear during the first run. 
+### If you didn't set up `Visual C++ settings` during install you can do it later by going to menu `Tools` -> `Import and export settings` -> `Reset all settings` and the option will appear again. The screenshot shown is from that window because I had no fresh install of Visual Studio to see the window appear during the first run. 
 
 ![Visual Studio 2017-19 - Import and export settings](https://github.com/asm128/hdtree/assets/26621255/9edc33bc-d1a1-45f6-b9f7-1e2dc05e65e0)
