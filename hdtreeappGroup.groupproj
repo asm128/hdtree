@@ -3,11 +3,11 @@
         <ProjectGuid>{A488EA87-F8F0-4C04-9FF4-482CA3ACE8B0}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include=".\hdtreeapp\hdtreeapp.cbproj">
-            <Dependencies>.\hdtree\hdtree.cbproj</Dependencies>
-        </Projects>
-        <Projects Include=".\hdtree\hdtree.cbproj">
+        <Projects Include="hdtree\hdtree.cbproj">
             <Dependencies/>
+        </Projects>
+        <Projects Include="hdtreeapp\hdtreeapp.cbproj">
+            <Dependencies>hdtree\hdtree.cbproj</Dependencies>
         </Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -17,32 +17,32 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="hdtreeapp" DependsOnTargets="hdtree">
-        <MSBuild Projects=".\hdtreeapp\hdtreeapp.cbproj"/>
-    </Target>
-    <Target Name="hdtreeapp:Clean" DependsOnTargets="hdtree:Clean">
-        <MSBuild Projects=".\hdtreeapp\hdtreeapp.cbproj" Targets="Clean"/>
-    </Target>
-    <Target Name="hdtreeapp:Make" DependsOnTargets="hdtree:Make">
-        <MSBuild Projects=".\hdtreeapp\hdtreeapp.cbproj" Targets="Make"/>
-    </Target>
     <Target Name="hdtree">
-        <MSBuild Projects=".\hdtree\hdtree.cbproj"/>
+        <MSBuild Projects="hdtree\hdtree.cbproj"/>
     </Target>
     <Target Name="hdtree:Clean">
-        <MSBuild Projects=".\hdtree\hdtree.cbproj" Targets="Clean"/>
+        <MSBuild Projects="hdtree\hdtree.cbproj" Targets="Clean"/>
     </Target>
     <Target Name="hdtree:Make">
-        <MSBuild Projects=".\hdtree\hdtree.cbproj" Targets="Make"/>
+        <MSBuild Projects="hdtree\hdtree.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="hdtreeapp" DependsOnTargets="hdtree">
+        <MSBuild Projects="hdtreeapp\hdtreeapp.cbproj"/>
+    </Target>
+    <Target Name="hdtreeapp:Clean" DependsOnTargets="hdtree:Clean">
+        <MSBuild Projects="hdtreeapp\hdtreeapp.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hdtreeapp:Make" DependsOnTargets="hdtree:Make">
+        <MSBuild Projects="hdtreeapp\hdtreeapp.cbproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="hdtreeapp;hdtree"/>
+        <CallTarget Targets="hdtree;hdtreeapp"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="hdtreeapp:Clean;hdtree:Clean"/>
+        <CallTarget Targets="hdtree:Clean;hdtreeapp:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="hdtreeapp:Make;hdtree:Make"/>
+        <CallTarget Targets="hdtree:Make;hdtreeapp:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
