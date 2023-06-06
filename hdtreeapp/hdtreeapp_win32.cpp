@@ -102,7 +102,7 @@ static int32_t createWindow(App & app, n2u32 & clientSize) {
 	AdjustWindowRect(&rcWindow, WS_OVERLAPPEDWINDOW, 0);
 
 	constexpr uint32_t STYLE_ROOT = WS_VISIBLE | WS_OVERLAPPEDWINDOW; 
-	fail_if(0 == (gdi.hRoot = CreateWindow(gdi.WndClass.lpszClassName, TEXT("Caption"), STYLE_ROOT, CW_USEDEFAULT, CW_USEDEFAULT, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, 0, 0, gdi.hInstance, &app)));
+	fail_if(0 == (gdi.hRoot = CreateWindow(gdi.WndClass.lpszClassName, TEXT("Material manager"), STYLE_ROOT, CW_USEDEFAULT, CW_USEDEFAULT, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, 0, 0, gdi.hInstance, &app)));
 	return 0;
 }
 
@@ -277,50 +277,51 @@ LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	}
 
-	App	* app = (App*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-	if(0 == app)
+	App	* pApp = (App*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+	if(0 == pApp)
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
+	App & app = *pApp;
 	switch(uMsg) {
 	case WM_COMMAND: {
-		if((HWND)lParam == app->GDI.hAddCategory || (HWND)lParam == app->GDI.hAddMaterial) {
-			const INPUT_FIELD prevField = app->ActiveInput;
-			app->ActiveInput = ((HWND)lParam == app->GDI.hAddCategory) ? INPUT_FIELD::Category: INPUT_FIELD::Material; 
-			log_if_failed(::showInput(app->GDI, app->ActiveInput, app->ActiveInput != prevField));
+		if((HWND)lParam == app.GDI.hAddCategory || (HWND)lParam == app.GDI.hAddMaterial) {
+			const INPUT_FIELD prevField = app.ActiveInput;
+			app.ActiveInput = ((HWND)lParam == app.GDI.hAddCategory) ? INPUT_FIELD::Category: INPUT_FIELD::Material; 
+			log_if_failed(::showInput(app.GDI, app.ActiveInput, app.ActiveInput != prevField));
 		}
-		else if((HWND)lParam == app->GDI.hClear) {
-			log_if_failed(::hideInput(app->GDI));
-			app->Tree = {};
-			app->SelectedCategory = {};
-			TreeView_DeleteAllItems(app->GDI.hTree);
+		else if((HWND)lParam == app.GDI.hClear) {
+			log_if_failed(::hideInput(app.GDI));
+			app.Tree = {};
+			app.SelectedCategory = {};
+			TreeView_DeleteAllItems(app.GDI.hTree);
 		}
 		break;
 	}
 	case WM_NOTIFY: {
 		const NMTREEVIEW* nmhdr		= (NMTREEVIEW*)lParam;
 		const int	controlId	= (int)wParam;
-		if(controlId == GetDlgCtrlID(app->GDI.hTree)) {
-			HTREEITEM	hItem	= TreeView_GetSelection(app->GDI.hTree);
+		if(controlId == GetDlgCtrlID(app.GDI.hTree)) {
+			HTREEITEM	hItem	= TreeView_GetSelection(app.GDI.hTree);
 			TVITEM		tvItem	= {}; 
 			switch(nmhdr->hdr.code) {
 			case TVN_ITEMEXPANDED: {
 				tvItem.mask				= TVIF_IMAGE | TVIF_SELECTEDIMAGE; 
 				tvItem.hItem			= hItem;
-				tvItem.iImage			= (TVE_COLLAPSE == nmhdr->action) ? app->GDI.Images.CategoryClosed : app->GDI.Images.CategoryOpen; 
-				tvItem.iSelectedImage	= (TVE_COLLAPSE == nmhdr->action) ? app->GDI.Images.CategoryClosed : app->GDI.Images.CategoryOpen; 
-				TreeView_SetItem(app->GDI.hTree, &tvItem); 
+				tvItem.iImage			= (TVE_COLLAPSE == nmhdr->action) ? app.GDI.Images.CategoryClosed : app.GDI.Images.CategoryOpen; 
+				tvItem.iSelectedImage	= (TVE_COLLAPSE == nmhdr->action) ? app.GDI.Images.CategoryClosed : app.GDI.Images.CategoryOpen; 
+				TreeView_SetItem(app.GDI.hTree, &tvItem); 
 				break;
 			}
 			case TVN_SELCHANGED: {
 				TCHAR		buffer[256] = {};
-				if(0 == TreeView_GetParent(app->GDI.hTree, hItem)) {
+				if(0 == TreeView_GetParent(app.GDI.hTree, hItem)) {
 					tvItem.hItem		= hItem;
 					tvItem.mask			= TVIF_TEXT;
 					tvItem.cchTextMax	= sizeof(buffer);
 					tvItem.pszText		= buffer;
-					TreeView_GetItem(app->GDI.hTree, &tvItem);
+					TreeView_GetItem(app.GDI.hTree, &tvItem);
 					if(tvItem.pszText)
-						app->SelectedCategory = {tvItem.pszText};
+						app.SelectedCategory = {tvItem.pszText};
 				}
 				break;
 			}
@@ -333,19 +334,19 @@ LRESULT CALLBACK hd::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_SIZE: {
 		RECT rcClient = {};  // dimensions of client area 
-		GetClientRect(app->GDI.hRoot, &rcClient);
+		GetClientRect(app.GDI.hRoot, &rcClient);
 		const n2u32	clientSize	= {uint32_t(rcClient.right - rcClient.left), uint32_t(rcClient.bottom - rcClient.top)};
 
 		n2u32	posCat = {}, posMat = {}, posClr = {};
 		::calcButtonsPosition(clientSize, posCat, posMat, posClr);
-		SetWindowPos(app->GDI.hAddCategory	, 0, posCat.x, posCat.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
-		SetWindowPos(app->GDI.hAddMaterial	, 0, posMat.x, posMat.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
-		SetWindowPos(app->GDI.hClear		, 0, posClr.x, posClr.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
-		SetWindowPos(app->GDI.hInput		, 0, posMat.x, posMat.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
+		SetWindowPos(app.GDI.hAddCategory	, 0, posCat.x, posCat.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
+		SetWindowPos(app.GDI.hAddMaterial	, 0, posMat.x, posMat.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
+		SetWindowPos(app.GDI.hClear		, 0, posClr.x, posClr.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
+		SetWindowPos(app.GDI.hInput		, 0, posMat.x, posMat.y, SIZE_BUTTON.x, SIZE_BUTTON.y, 0);
 
 		RECT	rcTree = {};
 		::calcTreeRect(clientSize, rcTree);
-		SetWindowPos(app->GDI.hTree, 0, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, 0);
+		SetWindowPos(app.GDI.hTree, 0, rcTree.left, rcTree.top, rcTree.right - rcTree.left, rcTree.bottom - rcTree.top, 0);
 		break;
 	}
 	}
