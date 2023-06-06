@@ -54,7 +54,7 @@
 
 - 6.3 Type or copy the following code into the `main.cpp` file:
 
-```
+```cpp
 #include <stdio.h>
 
 int main()
