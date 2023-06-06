@@ -177,7 +177,7 @@ static HTREEITEM addTreeItem(App & app, const std::string & itemText, HTREEITEM 
 		std::string text = itemText;
 #endif
 		tvi.pszText			= &text[0];
-		tvi.cchTextMax		= (int)text.size();
+		tvi.cchTextMax		= (int)strlen(text.c_str());
 		tvi.iImage			= (hParent == TVI_ROOT) ? tvImages.CategoryEmpty : tvImages.Material; 
 		tvi.iSelectedImage	= (hParent == TVI_ROOT) ? tvImages.CategoryEmpty : tvImages.Material; 
 		tvi.lParam			= (LPARAM)&app; 
@@ -233,6 +233,7 @@ static LRESULT CALLBACK EditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			else {
 				tName.resize(length + 1);
 				GetWindowText(hWnd, &tName[0], (int)tName.size());
+				tName.resize(length);
 			}
 #ifdef UNICODE
 			std::string newName = {};
