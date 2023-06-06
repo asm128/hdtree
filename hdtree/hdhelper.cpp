@@ -1,6 +1,13 @@
 #include "hdhelper.h"
 
+#include "hdlog.h"
+
 #include <algorithm>
+
+int32_t	hd::addUniqueStringWithoutDigitsOrdered (std::vector<std::string> & container, const std::string & stringToAdd) {
+	fail_if((0 == stringToAdd.size()) || containsDigits(stringToAdd));
+	return addUniqueStringOrdered(container, stringToAdd);
+}
 
 // The current implementation does a linear search. 
 // While it could be implemented for doing a binary search, it is possible that 
