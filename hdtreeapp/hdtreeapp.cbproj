@@ -164,11 +164,14 @@
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="hdtreeapp.cpp">
-            <BuildOrder>0</BuildOrder>
+            <BuildOrder>3</BuildOrder>
         </CppCompile>
         <None Include="hdtreeapp.h">
             <BuildOrder>1</BuildOrder>
         </None>
+        <CppCompile Include="hdtreeapp_win32.cpp">
+            <BuildOrder>2</BuildOrder>
+        </CppCompile>
         <CppCompile Include="hdtreetest.cpp">
             <BuildOrder>2</BuildOrder>
         </CppCompile>
@@ -269,6 +272,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\Win64\Debug\hdtreeapp.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>hdtreeapp.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\Win64\Release\hdtreeapp.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>hdtreeapp.exe</RemoteName>
                         <Overwrite>true</Overwrite>

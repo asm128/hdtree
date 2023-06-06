@@ -1,9 +1,15 @@
-#include "hdtree.h"
-#include <Windows.h>
+#define RUN_APPLICATION 
 
-// Linking to the console subsystem executes a test on the tree object instead of calling WinMain() and launching the window
+#ifndef RUN_APPLICATION 
+#	include "hdtree.h"
+#else
+#	include "hdtreeapp.h"
+#	ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/);
+#	endif
+#endif
 
+// Linking to the console subsystem executes a test on the tree object and optionally launches the app window
 int main () {
 	hd::MaterialTree		tree;
 
@@ -96,6 +102,10 @@ int main () {
 			printf("\n\t- %s", mat.c_str());
 	}
 
+#ifdef RUN_APPLICATION
+#	ifdef _WIN32
 	::WinMain(GetModuleHandle(0), 0, 0, 0);
+#	endif
+#endif
 	return EXIT_SUCCESS;
 }

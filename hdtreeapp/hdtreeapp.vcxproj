@@ -163,8 +163,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="hdtreeapp.cpp" />
+    <ClCompile Include="hdtreeapp_win32.cpp" />
     <ClCompile Include="hdtreetest.cpp" />
+    <ClCompile Include="hdtreeapp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hdtreeapp.h" />
