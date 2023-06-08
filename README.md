@@ -19,4 +19,6 @@ Architecture overview:
 - The [hdtree folder](https://github.com/asm128/hdtree/tree/master/hdtree) contains a static library that defines the business logic. It contains code that should build for every platform.
 - The [hdtreeapp folder](https://github.com/asm128/hdtree/tree/master/hdtreeapp) contains the application code that defines the graphical user interface. It provides a system-specific interface to the business logic provided by htree. 
 - The [hdtreeapp_win32.cpp file](https://github.com/asm128/hdtree/blob/master/hdtreeapp/hdtreeapp_win32.cpp) is the only platform-specific code file from this repository. Everything else should build smoothly for other platforms.
+- The [.gitignore](./.gitignore) file has been set up to avoid adding temporary folders or local files to the repository. 
+- The output folders and project tree has been set up such that the project supports parallel compilation of the different build configurations.
 
