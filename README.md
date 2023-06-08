@@ -7,7 +7,7 @@ Instructions:
 - Open [hdtree.sln](./hdtree.sln) and/or [hdtreeappGroup.groupproj](./hdtreeappGroup.groupproj), respectively.
 - Build everythig and run.
 - The resulting files can be found in the folder that contains this repository, inside a folder called [Win32.Debug](../Win32.Debug/), [Win32.Embarcadero.Debug](../Win32.Embarcadero.Debug/), [Win32.Release](../Win32.Release/), [Win32.Embarcadero.Release](../Win32.Embarcadero.Release/),  [x64.Debug](../x64.Debug/), [x64.Embarcadero.Debug](../x64.Embarcadero.Debug/), [x64.Release](../x64.Release/) or [x64.Embarcadero.Release](../x64.Embarcadero.Release/), depending on the IDE and configuration chosen for building the project. In there you fill find the `hdtreeapp.exe` file that you can execute to run the program.
-- You still need to copy the` .bmp` files manually to the folder where the `hdtreeapp.exe` file is located (which is one of othe output folders mentioned above), except when running the program from Visual Studio.
+- You still need to copy the `.bmp` files manually to the folder where the `hdtreeapp.exe` file is located (which is one of othe output folders mentioned above), except when running the program from Visual Studio.
 
 Notes:
 - The categories display a custom icon depending on whether they are empty or are expanded or collapsed. The materials just have a single icon.
